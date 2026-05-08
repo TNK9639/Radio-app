@@ -1,0 +1,1003 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+
+<meta charset="UTF-8">
+
+<meta
+  name="viewport"
+  content="
+    width=device-width,
+    initial-scale=1.0
+  "
+>
+
+<title>海上無線 試験アプリ</title>
+
+<style>
+
+body{
+  font-family:sans-serif;
+  padding:10px;
+
+  background:
+    linear-gradient(
+      rgba(0,40,70,0.75),
+      rgba(0,20,40,0.9)
+    ),
+    url("img/bg.jpg");
+
+  background-size:cover;
+  background-attachment:fixed;
+  background-position:center;
+
+  color:white;
+}
+
+.topbar{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:10px;
+  gap:10px;
+}
+
+button{
+  width:100%;
+  padding:12px;
+  margin:5px 0;
+  font-size:16px;
+
+  border:none;
+  border-radius:10px;
+
+  background:#0b3d5c;
+  color:white;
+
+  border:1px solid #4fc3f7;
+
+  touch-action:manipulation;
+
+  transition:0.2s;
+}
+
+button:hover{
+  transform:scale(1.02);
+  background:#12557f;
+}
+
+.mainBtn{
+  background:#0288d1;
+}
+
+.choiceBtn.selected{
+  background:#00c853;
+}
+
+.numberBtn{
+  padding:14px;
+  font-size:18px;
+  border-radius:12px;
+  background:#123d5a;
+  color:white;
+  border:1px solid #4fc3f7;
+}
+
+.numberBtn.selected{
+  background:#00c853;
+}
+
+.answerGrid{
+  display:grid;
+  grid-template-columns:repeat(5,1fr);
+  gap:8px;
+  margin-top:8px;
+  margin-bottom:15px;
+}
+
+.result{
+  margin-top:10px;
+  padding:10px;
+  border-radius:10px;
+  color:white;
+}
+
+.ok{
+  background:#00c853;
+}
+
+.ng{
+  background:#d50000;
+}
+
+.explain{
+  background:rgba(255,255,255,0.92);
+  padding:10px;
+  border-radius:10px;
+  margin-top:10px;
+  color:#111;
+}
+
+img{
+  max-width:100%;
+  border-radius:10px;
+  margin-bottom:10px;
+  border:2px solid rgba(255,255,255,0.5);
+}
+
+.card{
+  background:rgba(255,255,255,0.9);
+  backdrop-filter:blur(5px);
+  padding:15px;
+  border-radius:15px;
+  margin-bottom:10px;
+  color:black;
+}
+
+select{
+  width:100%;
+  padding:10px;
+  margin:5px 0;
+  border-radius:10px;
+  font-size:16px;
+}
+
+</style>
+</head>
+
+<body>
+
+<h2>📡 海上無線 試験アプリ</h2>
+
+<input type="file" id="fileInput">
+
+<div id="quiz"></div>
+
+<div id="result"></div>
+
+<div id="explain"></div>
+
+<script>
+
+let data = [];
+let allData = [];
+
+let current = 0;
+
+let answers = [];
+
+let score = 0;
+let maxScore = 0;
+
+let answered = false;
+
+let mode = "";
+
+let selectedYear = "";
+let selectedTerm = "";
+let selectedSubject = "";
+
+// ===== CSV =====
+
+function parseCSV(text){
+
+  const rows = [];
+
+  let row = [];
+
+  let cell = "";
+
+  let inQuotes = false;
+
+  for(let i=0;i<text.length;i++){
+
+    const c = text[i];
+
+    if(c === '"'){
+
+      inQuotes = !inQuotes;
+
+    }
+
+    else if(c === ',' && !inQuotes){
+
+      row.push(cell);
+
+      cell = "";
+
+    }
+
+    else if(
+      (c === '\n' || c === '\r')
+      && !inQuotes
+    ){
+
+      if(cell !== "" || row.length){
+
+        row.push(cell);
+
+        rows.push(row);
+
+      }
+
+      row = [];
+
+      cell = "";
+
+    }
+
+    else{
+
+      cell += c;
+
+    }
+
+  }
+
+  return rows;
+
+}
+
+// ===== CSV読み込み =====
+
+document
+.getElementById("fileInput")
+.addEventListener("change", e=>{
+
+  const file = e.target.files[0];
+
+  const reader = new FileReader();
+
+  reader.onload = e=>{
+
+    let rows = parseCSV(e.target.result);
+
+    data = [];
+
+    rows.slice(1).forEach(r=>{
+
+      if(!r[4]) return;
+
+      data.push({
+
+        type:r[0].trim(),
+
+        year:r[1].trim(),
+
+        term:r[2].trim(),
+
+        subject:r[3].trim(),
+
+        img:r[4].trim(),
+
+        choices:r[5]
+          .split("｜")
+          .map(c=>c.trim()),
+
+        correct:r[6].trim(),
+
+        explain:r[7] || ""
+
+      });
+
+    });
+
+    allData = [...data];
+
+    showModeMenu();
+
+    alert("問題読み込み完了🔥");
+
+  };
+
+  reader.readAsText(file,"UTF-8");
+
+});
+
+// ===== モード =====
+
+function showModeMenu(){
+
+  document.getElementById("quiz").innerHTML = `
+
+    <div class="card">
+
+      <h3>モード選択</h3>
+
+      <button onclick="setMode('exam')">
+        試験モード
+      </button>
+
+      <button onclick="setMode('practice')">
+        練習モード
+      </button>
+
+      <button onclick="loadWeakQuestions()">
+        苦手克服モード
+      </button>
+
+      <button onclick="showRecords()">
+        成績表示
+      </button>
+
+    </div>
+
+  `;
+
+}
+
+function setMode(m){
+
+  mode = m;
+
+  showSettingScreen();
+
+}
+
+// ===== 設定 =====
+
+function showSettingScreen(){
+
+  let html = `
+
+    <div class="card">
+
+      <h3>設定</h3>
+
+      <select id="yearSelect">
+
+        <option value="2025">
+          2025
+        </option>
+
+        <option value="2024">
+          2024
+        </option>
+
+      </select>
+
+      <select id="termSelect">
+
+        <option value="前期">
+          前期
+        </option>
+
+        <option value="後期">
+          後期
+        </option>
+
+      </select>
+
+  `;
+
+  if(mode === "practice"){
+
+    html += `
+
+      <select id="subjectSelect">
+
+        <option value="無線工学">
+          無線工学
+        </option>
+
+        <option value="法規">
+          法規
+        </option>
+
+      </select>
+
+    `;
+
+  }
+
+  html += `
+
+      <button
+        class="mainBtn"
+        onclick="startMode()"
+      >
+        開始
+      </button>
+
+    </div>
+
+  `;
+
+  document.getElementById("quiz").innerHTML = html;
+
+}
+
+// ===== 開始 =====
+
+function startMode(){
+
+  selectedYear =
+    document.getElementById("yearSelect").value;
+
+  selectedTerm =
+    document.getElementById("termSelect").value;
+
+  if(mode === "practice"){
+
+    selectedSubject =
+      document.getElementById("subjectSelect").value;
+
+  }
+
+  filterQuestions();
+
+  start();
+
+}
+
+function filterQuestions(){
+
+  let filtered = allData.filter(q=>{
+
+    let ok = true;
+
+    ok =
+      ok &&
+      q.year === selectedYear;
+
+    ok =
+      ok &&
+      q.term === selectedTerm;
+
+    if(mode === "practice"){
+
+      ok =
+        ok &&
+        q.subject === selectedSubject;
+
+    }
+
+    return ok;
+
+  });
+
+  data = filtered;
+
+}
+
+function start(){
+
+  current = 0;
+
+  score = 0;
+
+  maxScore = 0;
+
+  answers = [];
+
+  answered = false;
+
+  show();
+
+}
+
+// ===== 表示 =====
+
+function show(){
+
+  answered = false;
+
+  let q = data[current];
+
+  document.getElementById("result").innerHTML = "";
+
+  document.getElementById("explain").innerHTML = "";
+
+  let html = `
+
+    <div class="topbar">
+
+      <div>
+
+        問題 ${current+1}
+        /
+        ${data.length}
+
+      </div>
+
+      <button
+        style="width:120px;"
+        onclick="prev()"
+      >
+        ← 戻る
+      </button>
+
+    </div>
+
+    <div class="card">
+
+  `;
+
+  if(q.img){
+
+    html += `<img src="${q.img}">`;
+
+  }
+
+  // ===== A =====
+
+  if(q.type === "normal"){
+
+    q.choices.forEach((c,i)=>{
+
+      html += `
+
+        <button
+          class="choiceBtn"
+          onclick="selectNormal(${i})"
+        >
+
+          ${c}
+
+        </button>
+
+      `;
+
+    });
+
+  }
+
+  // ===== B =====
+
+  else{
+
+    let labels =
+      ["ア","イ","ウ","エ","オ"];
+
+    if(!answers[current]){
+
+      answers[current] = [];
+
+    }
+
+    labels.forEach((label,idx)=>{
+
+      html += `
+
+        <div class="card">
+
+          <h3>${label}</h3>
+
+          <div id="selected${idx}">
+            未選択
+          </div>
+
+          <div class="answerGrid">
+
+      `;
+
+      if(q.type === "binary"){
+
+        for(let n=1;n<=2;n++){
+
+          let text =
+            n===1
+            ? "1 正しい"
+            : "2 間違い";
+
+          html += `
+
+            <button
+
+              class="numberBtn"
+
+              id="multi_${idx}_${n}"
+
+              onclick="setMultiButton(
+                ${idx},
+                ${n},
+                '${text}'
+              )"
+
+            >
+
+              ${text}
+
+            </button>
+
+          `;
+
+        }
+
+      }
+
+      else{
+
+        q.choices.forEach((c,i)=>{
+
+          let n = i+1;
+
+          html += `
+
+            <button
+
+              class="numberBtn"
+
+              id="multi_${idx}_${n}"
+
+              onclick="setMultiButton(
+                ${idx},
+                ${n},
+                '${c}'
+              )"
+
+            >
+
+              ${n}
+
+            </button>
+
+          `;
+
+        });
+
+      }
+
+      html += `
+
+          </div>
+
+        </div>
+
+      `;
+
+    });
+
+  }
+
+  html += `
+
+      <button
+        class="mainBtn"
+        onclick="next()"
+      >
+        次へ
+      </button>
+
+    </div>
+
+  `;
+
+  document.getElementById("quiz").innerHTML = html;
+
+}
+
+// ===== A選択 =====
+
+function selectNormal(i){
+
+  answers[current] = [i];
+
+  document
+  .querySelectorAll(".choiceBtn")
+  .forEach((b,idx)=>{
+
+    b.classList.toggle(
+      "selected",
+      idx===i
+    );
+
+  });
+
+}
+
+// ===== B選択 =====
+
+function setMultiButton(
+  idx,
+  val,
+  text
+){
+
+  if(!answers[current]){
+
+    answers[current] = [];
+
+  }
+
+  answers[current][idx] = Number(val);
+
+  document
+  .querySelectorAll(
+    `[id^="multi_${idx}_"]`
+  )
+  .forEach(btn=>{
+
+    btn.classList.remove("selected");
+
+  });
+
+  document
+  .getElementById(
+    `multi_${idx}_${val}`
+  )
+  .classList.add("selected");
+
+  document
+  .getElementById(
+    `selected${idx}`
+  )
+  .innerHTML = `
+    選択：
+    <b>${text}</b>
+  `;
+
+}
+
+// ===== 次へ =====
+
+function next(){
+
+  let q = data[current];
+
+  if(!answered){
+
+    let user = answers[current];
+
+    if(!user || user.length===0){
+
+      alert("選択してください");
+
+      return;
+
+    }
+
+    let correct = q.correct
+      .replace(/\s/g,"")
+      .split("-")
+      .map(x=>Number(x));
+
+    let point = 0;
+
+    let full = 0;
+
+    if(q.type==="normal"){
+
+      full = 5;
+
+      if(user[0]+1===correct[0]){
+
+        point = 5;
+
+      }
+
+    }
+
+    else{
+
+      full = correct.length;
+
+      correct.forEach((c,i)=>{
+
+        if(user[i]===c){
+
+          point++;
+
+        }
+
+      });
+
+    }
+
+    score += point;
+
+    maxScore += full;
+
+    if(point !== full){
+
+      saveWrongQuestion(q);
+
+    }
+
+    let ok = point===full;
+
+    document.getElementById("result").innerHTML = ok
+
+      ? `<div class="result ok">
+          ⭕ ${point}/${full}点
+        </div>`
+
+      : `<div class="result ng">
+          ❌ ${point}/${full}点
+        </div>`;
+
+    document.getElementById("explain").innerHTML =
+
+      `<div class="explain">
+        ${q.explain}
+      </div>`;
+
+    answered = true;
+
+    return;
+
+  }
+
+  current++;
+
+  if(current>=data.length){
+
+    saveResult();
+
+    document.getElementById("quiz").innerHTML = `
+
+      <div class="card">
+
+        <h2>終了！</h2>
+
+        <h2>
+
+          ${score}
+          /
+          ${maxScore}
+          点
+
+        </h2>
+
+        <button onclick="showModeMenu()">
+
+          メニューへ
+
+        </button>
+
+      </div>
+
+    `;
+
+    return;
+
+  }
+
+  show();
+
+}
+
+// ===== 戻る =====
+
+function prev(){
+
+  if(current<=0) return;
+
+  current--;
+
+  show();
+
+}
+
+// ===== 苦手保存 =====
+
+function saveWrongQuestion(q){
+
+  let wrongs = JSON.parse(
+
+    localStorage.getItem("wrongs") || "[]"
+
+  );
+
+  wrongs.push(q);
+
+  localStorage.setItem(
+
+    "wrongs",
+
+    JSON.stringify(wrongs)
+
+  );
+
+}
+
+// ===== 苦手 =====
+
+function loadWeakQuestions(){
+
+  data = JSON.parse(
+
+    localStorage.getItem("wrongs") || "[]"
+
+  );
+
+  start();
+
+}
+
+// ===== 成績保存 =====
+
+function saveResult(){
+
+  let results = JSON.parse(
+
+    localStorage.getItem("results") || "[]"
+
+  );
+
+  results.push({
+
+    year:selectedYear,
+
+    term:selectedTerm,
+
+    subject:selectedSubject,
+
+    score:score,
+
+    max:maxScore,
+
+    date:new Date().toLocaleString()
+
+  });
+
+  localStorage.setItem(
+
+    "results",
+
+    JSON.stringify(results)
+
+  );
+
+}
+
+// ===== 成績 =====
+
+function showRecords(){
+
+  let results = JSON.parse(
+
+    localStorage.getItem("results") || "[]"
+
+  );
+
+  let html = `
+
+    <div class="card">
+
+      <h2>成績一覧</h2>
+
+  `;
+
+  results.forEach(r=>{
+
+    html += `
+
+      <div style="margin-bottom:10px;">
+
+        ${r.year}
+        ${r.term}
+        ${r.subject}
+
+        :
+
+        ${r.score}
+        /
+        ${r.max}
+
+      </div>
+
+    `;
+
+  });
+
+  html += `
+
+      <button onclick="showModeMenu()">
+
+        戻る
+
+      </button>
+
+    </div>
+
+  `;
+
+  document.getElementById("quiz").innerHTML = html;
+
+}
+
+</script>
+
+</body>
+</html>
