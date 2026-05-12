@@ -57,34 +57,46 @@ button{
   border:1px solid #4fc3f7;
 
   touch-action:manipulation;
-
   transition:0.2s;
 }
 
+.choiceBtn{
+  text-align:left;
+  padding-left:15px;
+}
+
+.numberBtn{
+  text-align:left;
+  padding-left:15px;
+}
 button:hover{
   transform:scale(1.02);
   background:#12557f;
 }
 
-.mainBtn{
-  background:#0288d1;
+.choiceBtn{
+  text-align:left;
+  padding-left:15px;
 }
 
 .choiceBtn.selected{
-  background:#00c853;
+  background:#00c853 ;
+  color:white;
 }
 
 .numberBtn{
-  padding:14px;
-  font-size:18px;
-  border-radius:12px;
-  background:#123d5a;
-  color:white;
-  border:1px solid #4fc3f7;
+  text-align:left;
+  padding-left:15px;
 }
 
 .numberBtn.selected{
-  background:#00c853;
+  background:#00c853 ;
+  color:white;
+}
+
+.wrong{
+  background:#d50000 !important;
+  color:white;
 }
 
 .answerGrid{
@@ -142,6 +154,10 @@ select{
   font-size:16px;
 }
 
+.wrong{
+  background:#d50000 !important;
+  color:white;
+}
 </style>
 </head>
 
@@ -149,7 +165,6 @@ select{
 
 <h2>📡 海上無線 試験アプリ</h2>
 
-<input type="file" id="fileInput">
 
 <div id="quiz"></div>
 
@@ -168,6 +183,7 @@ let answers = [];
 
 let score = 0;
 let maxScore = 0;
+let reviewResults = [];
 
 let answered = false;
 
@@ -238,62 +254,60 @@ function parseCSV(text){
 
 }
 
-// ===== CSV読み込み =====
+// ===== CSV自動読み込み =====
 
-document
-.getElementById("fileInput")
-.addEventListener("change", e=>{
+window.onload = function(){
 
-  const file = e.target.files[0];
+  fetch("questions.csv")
 
-  const reader = new FileReader();
+    .then(res => res.text())
 
-  reader.onload = e=>{
+    .then(text => {
 
-    let rows = parseCSV(e.target.result);
+      let rows = parseCSV(text);
 
-    data = [];
+      data = [];
 
-    rows.slice(1).forEach(r=>{
+      rows.slice(1).forEach(r=>{
 
-      if(!r[4]) return;
+        if(!r[4]) return;
 
-      data.push({
+        data.push({
 
-        type:r[0].trim(),
+          type:r[0].trim(),
+          year:r[1].trim(),
+          term:r[2].trim(),
+          subject:r[3].trim(),
+          img:r[4].trim(),
 
-        year:r[1].trim(),
+          choices:r[5]
+            .split("｜")
+            .map(c=>c.trim()),
 
-        term:r[2].trim(),
+          correct:r[6].trim(),
+          explain:r[7] || ""
 
-        subject:r[3].trim(),
-
-        img:r[4].trim(),
-
-        choices:r[5]
-          .split("｜")
-          .map(c=>c.trim()),
-
-        correct:r[6].trim(),
-
-        explain:r[7] || ""
+        });
 
       });
 
+      allData = [...data];
+
+      showModeMenu();
+
+    })
+
+    .catch(err => {
+
+      alert(
+        "questions.csv が見つかりません"
+      );
+
+      console.error(err);
+
     });
 
-    allData = [...data];
-
-    showModeMenu();
-
-    alert("問題読み込み完了🔥");
-
-  };
-
-  reader.readAsText(file,"UTF-8");
-
-});
-
+}
 // ===== モード =====
 
 function showModeMenu(){
@@ -735,14 +749,14 @@ function next(){
 
   let q = data[current];
 
+  // ===== 採点 =====
   if(!answered){
 
     let user = answers[current];
 
-    if(!user || user.length===0){
+    if(!user || user.length === 0){
 
       alert("選択してください");
-
       return;
 
     }
@@ -750,17 +764,17 @@ function next(){
     let correct = q.correct
       .replace(/\s/g,"")
       .split("-")
-      .map(x=>Number(x));
+      .map(x => Number(x));
 
     let point = 0;
-
     let full = 0;
 
-    if(q.type==="normal"){
+    // ===== A問題 =====
+    if(q.type === "normal"){
 
       full = 5;
 
-      if(user[0]+1===correct[0]){
+      if(user[0] + 1 === correct[0]){
 
         point = 5;
 
@@ -768,13 +782,14 @@ function next(){
 
     }
 
+    // ===== B問題 =====
     else{
 
       full = correct.length;
 
       correct.forEach((c,i)=>{
 
-        if(user[i]===c){
+        if(user[i] === c){
 
           point++;
 
@@ -785,8 +800,18 @@ function next(){
     }
 
     score += point;
-
     maxScore += full;
+
+    reviewResults.push({
+
+      name:
+        q.subject +
+        " A-" +
+        (current + 1),
+
+      ok: point === full
+
+    });
 
     if(point !== full){
 
@@ -794,35 +819,119 @@ function next(){
 
     }
 
-    let ok = point===full;
+    let ok = point === full;
 
-    document.getElementById("result").innerHTML = ok
+    // ===== 正解を緑表示 =====
+    // ===== 正解・不正解表示 =====
+if(q.type === "normal"){
 
+  // 正解を緑
+  document
+    .querySelectorAll(".choiceBtn")
+    [correct[0]-1]
+    ?.classList.add("selected");
+
+  // 間違え選択を赤
+  if(user[0] + 1 !== correct[0]){
+
+    document
+      .querySelectorAll(".choiceBtn")
+      [user[0]]
+      ?.classList.add("wrong");
+
+  }
+
+}
+else{
+
+  correct.forEach((c,i)=>{
+
+    let correctBtn =
+      document.getElementById(
+        `multi_${i}_${c}`
+      );
+
+    // 正解
+    if(correctBtn){
+
+      correctBtn.classList.add(
+        "selected"
+      );
+
+    }
+
+    // 間違え
+    if(user[i] &&
+       user[i] !== c){
+
+      let wrongBtn =
+        document.getElementById(
+          `multi_${i}_${user[i]}`
+        );
+
+      if(wrongBtn){
+
+        wrongBtn.classList.add(
+          "wrong"
+        );
+
+      }
+
+    }
+
+  });
+
+}
+
+    document.getElementById("result").innerHTML =
+      ok
       ? `<div class="result ok">
           ⭕ ${point}/${full}点
         </div>`
-
       : `<div class="result ng">
           ❌ ${point}/${full}点
         </div>`;
 
     document.getElementById("explain").innerHTML =
-
       `<div class="explain">
         ${q.explain}
       </div>`;
 
     answered = true;
-
     return;
-
   }
 
+  // ===== 次の問題 =====
   current++;
 
-  if(current>=data.length){
+  // ===== 終了 =====
+  if(current >= data.length){
 
     saveResult();
+
+    document.getElementById("result").innerHTML = "";
+    document.getElementById("explain").innerHTML = "";
+
+    let wrongList = "";
+
+    reviewResults.forEach(r=>{
+
+      wrongList += `
+        <div style="
+          padding:8px;
+          margin:5px 0;
+          border-radius:8px;
+          background:
+            ${r.ok ? "#00c853" : "#d50000"};
+          color:white;
+        ">
+          ${r.name}
+          :
+          ${r.ok ? "⭕" : "❌"}
+        </div>
+      `;
+
+    });
 
     document.getElementById("quiz").innerHTML = `
 
@@ -831,18 +940,18 @@ function next(){
         <h2>終了！</h2>
 
         <h2>
-
           ${score}
           /
           ${maxScore}
           点
-
         </h2>
 
+        <h3>復習一覧</h3>
+
+        ${wrongList}
+
         <button onclick="showModeMenu()">
-
           メニューへ
-
         </button>
 
       </div>
@@ -856,14 +965,28 @@ function next(){
   show();
 
 }
-
 // ===== 戻る =====
 
 function prev(){
 
-  if(current<=0) return;
+  // 最初の問題なら設定画面へ戻る
+  if(current <= 0){
+
+    if(mode){
+      showSettingScreen();
+    }else{
+      showModeMenu();
+    }
+
+    return;
+  }
 
   current--;
+
+  answered = false;
+
+  document.getElementById("result").innerHTML = "";
+  document.getElementById("explain").innerHTML = "";
 
   show();
 
