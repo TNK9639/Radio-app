@@ -332,17 +332,17 @@ function showModeMenu(){
         練習モード
       </button>
 
-      <button onclick="loadWeakQuestions()">
-        苦手克服モード
-      </button>
-<button onclick="showWeakList()">
-苦手一覧
+<button onclick="loadWeakQuestions()">
+  苦手克服モード
 </button>
-     <button onclick="showRecords()">
-        成績表示
-      </button>
 
-    </div>
+<button onclick="showWeakList()">
+  苦手一覧
+</button>
+
+<button onclick="showRecords()">
+  成績表示
+</button>
 
   `;
 
@@ -491,6 +491,8 @@ function start(){
   maxScore = 0;
 
   answers = [];
+
+  reviewResults = []; // ←追加
 
   answered = false;
 
