@@ -368,17 +368,17 @@ function showSettingScreen(){
       <h3>設定</h3>
 
 <select id="yearSelect">
-
-  <option value="2025">
-    2025
-  </option>
-
-  <option value="2024">
-    2024
-  </option>
-
-</select>
-      <select id="termSelect">
+  ${
+    [...new Set(allData.map(q => q.year))]
+      .sort((a,b)=>b-a)
+      .map(y => `
+        <option value="${y}">
+          ${y}
+        </option>
+      `)
+      .join("")
+  }
+</select>      <select id="termSelect">
 
         <option value="前期">
           前期
@@ -818,14 +818,16 @@ function next(){
 
     reviewResults.push({
 
-      name:
-        q.subject +
-        " A-" +
-        (current + 1),
+  name:
+    q.subject +
+    " " +
+    (q.type === "normal" ? "A" : "B") +
+    "-" +
+    (current + 1),
 
-      ok: point === full
+  ok: point === full
 
-    });
+});
 let ok = point === full;
 // 間違えたら苦手登録
 if(point !== full){
@@ -1142,7 +1144,7 @@ function showWeakList(){
 
           ${w.subject}
 
-          A-${w.id ? w.id.split("_")[3] : "?"}
+          ${w.type === "normal" ? "A" : "B"}-${Number(w.id.split("_")[3])}
 
 
 
