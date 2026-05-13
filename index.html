@@ -285,7 +285,13 @@ window.onload = function(){
             .map(c=>c.trim()),
 
           correct:r[6].trim(),
-          explain:r[7] || ""
+          explain:r[7] || "",
+
+id:
+  r[1].trim() + "_" +
+  r[2].trim() + "_" +
+  r[3].trim() + "_" +
+  rows.indexOf(r)
 
         });
 
@@ -329,8 +335,10 @@ function showModeMenu(){
       <button onclick="loadWeakQuestions()">
         苦手克服モード
       </button>
-
-      <button onclick="showRecords()">
+<button onclick="showWeakList()">
+苦手一覧
+</button>
+     <button onclick="showRecords()">
         成績表示
       </button>
 
@@ -508,9 +516,13 @@ function show(){
 
       <div>
 
-        問題 ${current+1}
-        /
-        ${data.length}
+        ${q.subject}
+${q.year}
+${q.term}
+
+A-${current+1}
+
+（${current+1}/${data.length}）
 
       </div>
 
@@ -812,16 +824,38 @@ function next(){
       ok: point === full
 
     });
+let ok = point === full;
+// 間違えたら苦手登録
+if(point !== full){
 
-    if(point !== full){
+  saveWrongQuestion(q);
 
-      saveWrongQuestion(q);
+}
+// 正解したら苦手解除
+else{
 
-    }
+  let wrongs = JSON.parse(
+    localStorage.getItem("wrongs")
+    || "[]"
+  );
 
-    let ok = point === full;
+  let target = wrongs.find(
+    w => w.id === q.id
+  );
 
-    // ===== 正解を緑表示 =====
+  if(target){
+
+    target.active = false;
+
+    localStorage.setItem(
+      "wrongs",
+      JSON.stringify(wrongs)
+    );
+
+  }
+
+}
+
     // ===== 正解・不正解表示 =====
 if(q.type === "normal"){
 
@@ -965,6 +999,48 @@ else{
   show();
 
 }
+
+// ===== 苦手保存 =====
+function saveWrongQuestion(q){
+
+  let wrongs = JSON.parse(
+    localStorage.getItem("wrongs")
+    || "[]"
+  );
+
+  let existing = wrongs.find(
+    w => w.id === q.id
+  );
+
+  // 既にある問題
+  if(existing){
+
+    existing.missCount =
+      (existing.missCount || 0)
+      + 1;
+
+    existing.active = true;
+  }
+
+  // 新規追加
+  else{
+
+    wrongs.push({
+
+      ...q,
+
+      missCount:1,
+      active:true
+
+    });
+
+  }
+
+  localStorage.setItem(
+    "wrongs",
+    JSON.stringify(wrongs)
+  );
+}
 // ===== 戻る =====
 
 function prev(){
@@ -992,39 +1068,106 @@ function prev(){
 
 }
 
-// ===== 苦手保存 =====
 
-function saveWrongQuestion(q){
-
-  let wrongs = JSON.parse(
-
-    localStorage.getItem("wrongs") || "[]"
-
-  );
-
-  wrongs.push(q);
-
-  localStorage.setItem(
-
-    "wrongs",
-
-    JSON.stringify(wrongs)
-
-  );
-
-}
 
 // ===== 苦手 =====
 
 function loadWeakQuestions(){
 
-  data = JSON.parse(
+  let wrongs = JSON.parse(
 
-    localStorage.getItem("wrongs") || "[]"
+    localStorage.getItem(
+      "wrongs"
+    ) || "[]"
+
+  );
+
+  data = wrongs.filter(
+
+    w => w.active === true
 
   );
 
   start();
+
+}
+
+
+function showWeakList(){
+
+  let wrongs = JSON.parse(
+
+    localStorage.getItem(
+      "wrongs"
+    ) || "[]"
+
+  );
+
+  let html = `
+
+    <div class="card">
+
+      <h2>苦手一覧</h2>
+
+  `;
+
+  wrongs
+    .sort((a,b)=>
+
+      b.missCount -
+      a.missCount
+
+    )
+    .forEach(w=>{
+
+      html += `
+
+        <div style="
+          padding:10px;
+          margin:5px 0;
+          border-radius:8px;
+          background:
+            ${
+              w.active
+              ? "#d50000"
+              : "#00c853"
+            };
+          color:white;
+        ">
+
+          ${w.year}
+          ${w.term}
+
+          ${w.subject}
+
+          A-${w.id.split("_")[3]}
+
+          <br>
+
+          間違い回数：
+          ${w.missCount}回
+
+        </div>
+
+      `;
+
+    });
+
+  html += `
+
+      <button
+        onclick="showModeMenu()"
+      >
+        戻る
+      </button>
+
+    </div>
+
+  `;
+
+  document
+    .getElementById("quiz")
+    .innerHTML = html;
 
 }
 
