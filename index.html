@@ -359,17 +359,18 @@ function showSettingScreen(){
 
       <h3>設定</h3>
 
-      <select id="yearSelect">
-
-        <option value="2025">
-          2025
-        </option>
-
-        <option value="2024">
-          2024
-        </option>
-
-      </select>
+<select id="yearSelect">
+  ${
+    [...new Set(allData.map(q => q.year))]
+      .sort((a,b)=>b-a)
+      .map(y =>
+        `<option value="${y}">
+          ${y}
+        </option>`
+      )
+      .join("")
+  }
+</select>
 
       <select id="termSelect">
 
@@ -515,7 +516,7 @@ function show(){
 ${q.year}
 ${q.term}
 
-A-${current+1}
+${q.type === "normal" ? "A" : "B"}-${current+1}
 
 （${current+1}/${data.length}）
 
