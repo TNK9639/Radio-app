@@ -1135,12 +1135,19 @@ function showWeakList(){
 
           ${w.subject}
 
-          A-${w.id.split("_")[3]}
+          A-${w.id ? w.id.split("_")[3] : "?"}
 
-          <br>
+          ${w.year}
+${w.term}
 
-          間違い回数：
-          ${w.missCount}回
+${w.subject}
+
+A-${w.id ? w.id.split("_")[3] : "?"}
+
+<br>
+
+間違い回数：
+${w.missCount}回
 
         </div>
 
