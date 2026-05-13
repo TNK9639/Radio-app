@@ -349,10 +349,18 @@ function showModeMenu(){
   `;
 
 }
+
+// ←ここに追加！！
+function setMode(m){
+
+  mode = m;
+
+  showSettingScreen();
+
+}
+
 // ===== 設定 =====
-
 function showSettingScreen(){
-
   let html = `
 
     <div class="card">
@@ -360,18 +368,16 @@ function showSettingScreen(){
       <h3>設定</h3>
 
 <select id="yearSelect">
-  ${
-    [...new Set(allData.map(q => q.year))]
-      .sort((a,b)=>b-a)
-      .map(y =>
-        `<option value="${y}">
-          ${y}
-        </option>`
-      )
-      .join("")
-  }
-</select>
 
+  <option value="2025">
+    2025
+  </option>
+
+  <option value="2024">
+    2024
+  </option>
+
+</select>
       <select id="termSelect">
 
         <option value="前期">
@@ -1138,12 +1144,7 @@ function showWeakList(){
 
           A-${w.id ? w.id.split("_")[3] : "?"}
 
-          ${w.year}
-${w.term}
 
-${w.subject}
-
-A-${w.id ? w.id.split("_")[3] : "?"}
 
 <br>
 
