@@ -381,7 +381,34 @@ function showSettingScreen(){
 
     <div class="card">
 
-      <h3>設定</h3>
+      <div class="card">
+
+  <div style="
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-bottom:15px;
+  ">
+
+    <h3 style="margin:0;">
+      設定
+    </h3>
+
+    <button
+      onclick="showModeMenu()"
+      style="
+        width:auto;
+        margin:0;
+        padding:10px 18px;
+        background:#4b73c2;
+      "
+    >
+      メニューへ戻る
+    </button>
+
+  </div>
+
+<select id="yearSelect">>
 
 <select id="yearSelect">
   ${
@@ -445,17 +472,6 @@ function showSettingScreen(){
     開始
   </button>
 
-  <button
-    onclick="showModeMenu()"
-    style="
-      flex:1;
-      background:#666;
-    "
-  >
-    ← 戻る
-  </button>
-
-</div>
 
 </div>
 
