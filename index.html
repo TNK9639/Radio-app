@@ -1191,40 +1191,52 @@ function showWeakList(){
     )
     .forEach(w=>{
 
-      html += `
+  let no =
+    allData.filter(q =>
+      q.year === w.year &&
+      q.term === w.term &&
+      q.subject === w.subject &&
+      q.type === w.type
+    ).findIndex(q => q.id === w.id) + 1;
 
-        <div style="
-          padding:10px;
-          margin:5px 0;
-          border-radius:8px;
-          background:
-            ${
-              w.active
-              ? "#d50000"
-              : "#00c853"
-            };
-          color:white;
-        ">
+  html += `
 
-          ${w.year}
-          ${w.term}
+    <div style="
+      padding:12px;
+      margin:8px 0;
+      border-radius:10px;
+      background:
+        ${
+          w.active
+          ? "#d50000"
+          : "#00c853"
+        };
+      color:white;
+      line-height:1.7;
+    ">
 
-          ${w.subject}
+      ${w.year}
+      ${w.term}
+      ${w.subject}
 
-          ${w.type === "normal" ? "A" : "B"}-${Number(w.id.split("_")[3])}
+      <br>
 
+      ${
+        w.type === "normal"
+        ? "A"
+        : "B"
+      }-${no}
 
+      <br>
 
-<br>
+      間違い回数：
+      ${w.missCount}回
 
-間違い回数：
-${w.missCount}回
+    </div>
 
-        </div>
+  `;
 
-      `;
-
-    });
+});
 
   html += `
 
