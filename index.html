@@ -1269,7 +1269,6 @@ function saveResult(){
 }
 
 // ===== 成績 =====
-
 function showRecords(){
 
   let results = JSON.parse(
@@ -1281,25 +1280,42 @@ function showRecords(){
       <h2>成績一覧</h2>
   `;
 
-  results.forEach(r=>{
+  if(results.length === 0){
 
     html += `
-      <div style="margin-bottom:10px;">
-
-        ${r.year}
-        ${r.term}
-        ${r.subject}
-
-        ：
-
-        ${r.score}
-        /
-        ${r.max}
-
+      <div>
+        成績履歴がありません
       </div>
     `;
 
-  });
+  }else{
+
+    results.forEach(r=>{
+
+      html += `
+        <div style="
+          margin-bottom:10px;
+          padding:10px;
+          border-radius:8px;
+          background:#eee;
+        ">
+
+          ${r.year}
+          ${r.term}
+          ${r.subject}
+
+          ：
+
+          ${r.score}
+          /
+          ${r.max}
+
+        </div>
+      `;
+
+    });
+
+  }
 
   html += `
 
@@ -1318,11 +1334,7 @@ function showRecords(){
   `;
 
   document.getElementById("quiz").innerHTML = html;
-}
-  document.getElementById("quiz").innerHTML = html;
-
-}
-// ===== 苦手一覧削除 =====
+}// ===== 苦手一覧削除 =====
 function clearWeakList(){
 
   if(!confirm("苦手一覧を削除しますか？")){
