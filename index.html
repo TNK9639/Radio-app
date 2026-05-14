@@ -1175,59 +1175,75 @@ function showWeakList(){
     localStorage.getItem("wrongs") || "[]"
   );
 
-  let html = `
-    <div class="card">
-      <h2>苦手一覧</h2>
-  `;
+ let html = `
+  <div class="card">
 
-  wrongs
-    .sort((a,b)=>
-      b.missCount - a.missCount
-    )
-    .forEach(w=>{
+    <div style="
+      display:flex;
+      justify-content:space-between;
+      align-items:center;
+      margin-bottom:15px;
+    ">
 
-      html += `
-        <div style="
-          padding:12px;
-          margin:8px 0;
-          border-radius:10px;
-          background:
-            ${w.active ? "#d50000" : "#00c853"};
-          color:white;
-          line-height:1.7;
-        ">
+      <h2 style="margin:0;">
+        苦手一覧
+      </h2>
 
-          ${w.year}${w.term}${w.subject}
-
-          <br>
-
-          ${w.type === "normal" ? "A" : "B"}-${w.questionNo}
-
-          <br>
-
-          間違い回数：${w.missCount}回
-
-        </div>
-      `;
-
-    });
-
-  html += `
-
-    <button
-      onclick="clearWeakList()"
-      style="background:#d50000;"
-    >
-      苦手一覧を削除
-    </button>
-
-    <button onclick="showModeMenu()">
-      戻る
-    </button>
+      <button
+        onclick="clearWeakList()"
+        style="
+          background:#d50000;
+          width:auto;
+          padding:8px 14px;
+          margin:0;
+        "
+      >
+        削除
+      </button>
 
     </div>
-  `;
+`;
 
+wrongs
+  .sort((a,b)=>
+    b.missCount - a.missCount
+  )
+  .forEach(w=>{
+
+    html += `
+      <div style="
+        padding:12px;
+        margin:8px 0;
+        border-radius:10px;
+        background:
+          ${w.active ? "#d50000" : "#00c853"};
+        color:white;
+        line-height:1.7;
+      ">
+
+        ${w.year}${w.term}${w.subject}
+
+        <br>
+
+        ${w.type === "normal" ? "A" : "B"}-${w.questionNo}
+
+        <br>
+
+        間違い回数：${w.missCount}回
+
+      </div>
+    `;
+
+  });
+
+html += `
+
+  <button onclick="showModeMenu()">
+    戻る
+  </button>
+
+  </div>
+`;
   document.getElementById("quiz").innerHTML = html;
 }
 
@@ -1275,23 +1291,56 @@ function showRecords(){
 
   let html = `
     <div class="card">
-      <h2>成績一覧</h2>
+
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:15px;
+      ">
+
+        <h2 style="margin:0;">
+          成績一覧
+        </h2>
+
+        <button
+          onclick="clearRecords()"
+          style="
+            background:#d50000;
+            width:auto;
+            padding:8px 14px;
+            margin:0;
+          "
+        >
+          削除
+        </button>
+
+      </div>
   `;
 
   results.forEach(r=>{
 
     html += `
-      <div style="margin-bottom:10px;">
+      <div style="
+        margin-bottom:10px;
+        padding:10px;
+        background:rgba(0,0,0,0.08);
+        border-radius:10px;
+      ">
 
         ${r.year}
         ${r.term}
         ${r.subject}
 
-        ：
+        <br>
 
         ${r.score}
         /
         ${r.max}
+
+        <br>
+
+        <small>${r.date}</small>
 
       </div>
     `;
@@ -1299,13 +1348,6 @@ function showRecords(){
   });
 
   html += `
-
-    <button
-      onclick="clearRecords()"
-      style="background:#d50000;"
-    >
-      成績履歴を削除
-    </button>
 
     <button onclick="showModeMenu()">
       戻る
@@ -1315,8 +1357,7 @@ function showRecords(){
   `;
 
   document.getElementById("quiz").innerHTML = html;
-}
-// ===== 苦手一覧削除 =====
+}// ===== 苦手一覧削除 =====
 function clearWeakList(){
 
   if(!confirm("苦手一覧を削除しますか？")){
