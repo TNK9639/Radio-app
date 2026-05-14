@@ -431,23 +431,35 @@ function showSettingScreen(){
 
   html += `
 
-     <button
-  class="mainBtn"
-  onclick="startMode()"
->
-  開始
-</button>
+<div style="
+  display:flex;
+  gap:10px;
+  margin-top:10px;
+">
 
-<button
-  onclick="showModeMenu()"
-  style="background:#666;"
->
-  ← メニューへ戻る
-</button>
+  <button
+    class="mainBtn"
+    onclick="startMode()"
+    style="flex:1;"
+  >
+    開始
+  </button>
 
-    </div>
+  <button
+    onclick="showModeMenu()"
+    style="
+      flex:1;
+      background:#666;
+    "
+  >
+    ← 戻る
+  </button>
 
-  `;
+</div>
+
+</div>
+
+`;
 
   document.getElementById("quiz").innerHTML = html;
 
