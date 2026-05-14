@@ -325,17 +325,20 @@ window.onload = function(){
         data.push({
 
           type:r[0].trim(),
-          year:r[1].trim(),
-          term:r[2].trim(),
-          subject:r[3].trim(),
-          img:r[4].trim(),
+year:r[1].trim(),
+term:r[2].trim(),
+subject:r[3].trim(),
 
-          choices:r[5]
-            .split("｜")
-            .map(c=>c.trim()),
+mondai:r[4].trim(),
 
-          correct:r[6].trim(),
-          explain:r[7] || "",
+img:r[5].trim(),
+
+choices:r[6]
+  .split("｜")
+  .map(c=>c.trim()),
+
+correct:r[7].trim(),
+explain:r[8] || "",
 
 questionNo:
   data.filter(q =>
@@ -376,6 +379,21 @@ function showModeMenu(){
   document.getElementById("quiz").innerHTML = `
 
     <div class="card">
+<div class="card">
+
+  <div style="
+    border:2px solid #999;
+    background:white;
+    color:black;
+    padding:12px;
+    border-radius:8px;
+    margin-bottom:12px;
+    text-align:center;
+    font-size:18px;
+    font-weight:bold;
+  ">
+    ${q.mondai || "問題文"}
+  </div>
 
       <h3>モード選択</h3>
 
