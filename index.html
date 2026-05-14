@@ -377,52 +377,50 @@ function setMode(m){
 
 // ===== 設定 =====
 function showSettingScreen(){
+
   let html = `
 
     <div class="card">
 
-      <div class="card">
+      <div style="
+        display:flex;
+        justify-content:space-between;
+        align-items:center;
+        margin-bottom:20px;
+      ">
 
-  <div style="
-    display:flex;
-    justify-content:space-between;
-    align-items:center;
-    margin-bottom:15px;
-  ">
+        <h3 style="margin:0;">
+          設定
+        </h3>
 
-    <h3 style="margin:0;">
-      設定
-    </h3>
+        <button
+          onclick="showModeMenu()"
+          style="
+            width:auto;
+            padding:10px 16px;
+          "
+        >
+          メニューへ戻る
+        </button>
 
-    <button
-      onclick="showModeMenu()"
-      style="
-        width:auto;
-        margin:0;
-        padding:10px 18px;
-        background:#4b73c2;
-      "
-    >
-      メニューへ戻る
-    </button>
+      </div>
 
-  </div>
+      <select id="yearSelect">
 
-<select id="yearSelect">>
+        ${
+          [...new Set(allData.map(q => q.year))]
+            .sort((a,b)=>b-a)
+            .map(y => `
+              <option value="${y}">
+                ${y}
+              </option>
+            `)
+            .join("")
+        }
 
-<select id="yearSelect">
-  ${
-    [...new Set(allData.map(q => q.year))]
-      .sort((a,b)=>b-a)
-      .map(y => `
-        <option value="${y}">
-          ${y}
-        </option>
-      `)
-      .join("")
-  }
-</select>     
- <select id="termSelect">
+      </select>
+
+      <select id="termSelect">
 
         <option value="前期">
           前期
@@ -458,24 +456,16 @@ function showSettingScreen(){
 
   html += `
 
-<div style="
-  display:flex;
-  gap:10px;
-  margin-top:10px;
-">
+      <button
+        class="mainBtn"
+        onclick="startMode()"
+      >
+        試験開始
+      </button>
 
-  <button
-    class="mainBtn"
-    onclick="startMode()"
-    style="flex:1;"
-  >
-    開始
-  </button>
-</div>
+    </div>
 
-</div>
-
-`;
+  `;
 
   document.getElementById("quiz").innerHTML = html;
 
