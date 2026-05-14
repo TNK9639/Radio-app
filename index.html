@@ -170,6 +170,38 @@ select{
   font-size:16px;
 }
 
+/* 設定画面 */
+.settingHeader{
+  display:flex;
+  justify-content:space-between;
+  align-items:center;
+  margin-bottom:20px;
+  gap:10px;
+}
+
+.backBtn{
+  width:auto !important;
+  padding:10px 18px;
+  white-space:nowrap;
+}
+
+.mainBtn{
+  width:100%;
+}
+
+/* スマホ */
+@media (max-width:768px){
+
+  .settingHeader{
+    flex-direction:row;
+  }
+
+  .backBtn{
+    font-size:14px;
+    padding:10px 14px;
+  }
+
+}
 .wrong{
   background:#d50000 !important;
   color:white;
@@ -382,23 +414,15 @@ function showSettingScreen(){
 
     <div class="card">
 
-      <div style="
-        display:flex;
-        justify-content:space-between;
-        align-items:center;
-        margin-bottom:20px;
-      ">
+      <div class="settingHeader">
 
         <h3 style="margin:0;">
           設定
         </h3>
 
         <button
+          class="backBtn"
           onclick="showModeMenu()"
-          style="
-            width:auto;
-            padding:10px 16px;
-          "
         >
           メニューへ戻る
         </button>
@@ -468,7 +492,6 @@ function showSettingScreen(){
   `;
 
   document.getElementById("quiz").innerHTML = html;
-
 }
 
 // ===== 開始 =====
