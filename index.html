@@ -379,21 +379,7 @@ function showModeMenu(){
   document.getElementById("quiz").innerHTML = `
 
     <div class="card">
-<div class="card">
 
-  <div style="
-    border:2px solid #999;
-    background:white;
-    color:black;
-    padding:12px;
-    border-radius:8px;
-    margin-bottom:12px;
-    text-align:center;
-    font-size:18px;
-    font-weight:bold;
-  ">
-    ${q.mondai || "問題文"}
-  </div>
 
       <h3>モード選択</h3>
 
@@ -631,11 +617,33 @@ ${q.type === "normal" ? "A" : "B"}-${current+1}
 
   `;
 
-  if(q.img){
+  // 問題文表示
+if(q.mondai){
 
-    html += `<img src="${q.img}">`;
+  html += `
+    <div style="
+      border:2px solid #999;
+      background:white;
+      color:black;
+      padding:12px;
+      border-radius:8px;
+      margin-bottom:12px;
+      text-align:center;
+      font-size:18px;
+      font-weight:bold;
+    ">
+      ${q.mondai}
+    </div>
+  `;
 
-  }
+}
+
+// 画像表示
+if(q.img){
+
+  html += `<img src="${q.img}">`;
+
+}
 
   // ===== A =====
 
