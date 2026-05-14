@@ -337,11 +337,16 @@ window.onload = function(){
           correct:r[6].trim(),
           explain:r[7] || "",
 
+questionNo:
+  data.filter(q =>
+    q.year === r[1].trim() &&
+    q.term === r[2].trim() &&
+    q.subject === r[3].trim() &&
+    q.type === r[0].trim()
+  ).length + 1,
+
 id:
-  r[1].trim() + "_" +
-  r[2].trim() + "_" +
-  r[3].trim() + "_" +
-  rows.indexOf(r)
+  crypto.randomUUID()
 
         });
 
@@ -493,9 +498,7 @@ function showSettingScreen(){
 
   `;
 
-  document.getElementById("quiz").innerHTML = html;
-}
-
+  
 // ===== 開始 =====
 
 function startMode(){
@@ -758,9 +761,7 @@ ${q.type === "normal" ? "A" : "B"}-${current+1}
 
   `;
 
-  document.getElementById("quiz").innerHTML = html;
-
-}
+ 
 
 // ===== A選択 =====
 
@@ -1167,89 +1168,64 @@ function loadWeakQuestions(){
 function showWeakList(){
 
   let wrongs = JSON.parse(
-
-    localStorage.getItem(
-      "wrongs"
-    ) || "[]"
-
+    localStorage.getItem("wrongs") || "[]"
   );
 
   let html = `
-
     <div class="card">
-
       <h2>苦手一覧</h2>
-
   `;
 
   wrongs
     .sort((a,b)=>
-
-      b.missCount -
-      a.missCount
-
+      b.missCount - a.missCount
     )
     .forEach(w=>{
 
-  let no =
-    allData.filter(q =>
-      q.year === w.year &&
-      q.term === w.term &&
-      q.subject === w.subject &&
-      q.type === w.type
-    ).findIndex(q => q.id === w.id) + 1;
+      html += `
+        <div style="
+          padding:12px;
+          margin:8px 0;
+          border-radius:10px;
+          background:
+            ${w.active ? "#d50000" : "#00c853"};
+          color:white;
+          line-height:1.7;
+        ">
+
+          ${w.year}${w.term}${w.subject}
+
+          <br>
+
+          ${w.type === "normal" ? "A" : "B"}-${w.questionNo}
+
+          <br>
+
+          間違い回数：${w.missCount}回
+
+        </div>
+      `;
+
+    });
 
   html += `
 
-    <div style="
-      padding:12px;
-      margin:8px 0;
-      border-radius:10px;
-      background:
-        ${
-          w.active
-          ? "#d50000"
-          : "#00c853"
-        };
-      color:white;
-      line-height:1.7;
-    ">
+    <button
+      onclick="clearWeakList()"
+      style="background:#d50000;"
+    >
+      苦手一覧を削除
+    </button>
 
-      ${w.year}
-      ${w.term}
-      ${w.subject}
-
-      <br>
-
-      ${
-        w.type === "normal"
-        ? "A"
-        : "B"
-      }-${no}
-
-      <br>
-
-      間違い回数：
-      ${w.missCount}回
+    <button onclick="showModeMenu()">
+      戻る
+    </button>
 
     </div>
-
   `;
 
-});
-
-  html += `
-
-      <button
-        onclick="showModeMenu()"
-      >
-        戻る
-      </button>
-
-    </div>
-
-  `;
-
+  document.getElementById("quiz").innerHTML = html;
+}
   document
     .getElementById("quiz")
     .innerHTML = html;
@@ -1297,55 +1273,81 @@ function saveResult(){
 function showRecords(){
 
   let results = JSON.parse(
-
     localStorage.getItem("results") || "[]"
-
   );
 
   let html = `
-
     <div class="card">
-
       <h2>成績一覧</h2>
-
   `;
 
   results.forEach(r=>{
 
     html += `
-
       <div style="margin-bottom:10px;">
 
         ${r.year}
         ${r.term}
         ${r.subject}
 
-        :
+        ：
 
         ${r.score}
         /
         ${r.max}
 
       </div>
-
     `;
 
   });
 
   html += `
 
-      <button onclick="showModeMenu()">
+    <button
+      onclick="clearRecords()"
+      style="background:#d50000;"
+    >
+      成績履歴を削除
+    </button>
 
-        戻る
-
-      </button>
+    <button onclick="showModeMenu()">
+      戻る
+    </button>
 
     </div>
-
   `;
 
   document.getElementById("quiz").innerHTML = html;
+}
+  document.getElementById("quiz").innerHTML = html;
 
+}
+// ===== 苦手一覧削除 =====
+function clearWeakList(){
+
+  if(!confirm("苦手一覧を削除しますか？")){
+    return;
+  }
+
+  localStorage.removeItem("wrongs");
+
+  alert("苦手一覧を削除しました");
+
+  showWeakList();
+}
+
+// ===== 成績履歴削除 =====
+function clearRecords(){
+
+  if(!confirm("成績履歴を削除しますか？")){
+    return;
+  }
+
+  localStorage.removeItem("results");
+
+  alert("成績履歴を削除しました");
+
+  showRecords();
 }
 
 </script>
