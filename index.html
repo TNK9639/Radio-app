@@ -682,19 +682,27 @@ if(q.img){
 
     labels.forEach((label,idx)=>{
 
-      html += `
+  html += `
 
-        <div class="card">
+    <div class="card">
 
-          <h3>${label}</h3>
+      <h3>
+        ${label}
+      </h3>
 
-          <div id="selected${idx}">
-            未選択
-          </div>
+      <div style="
+        margin-bottom:10px;
+        line-height:1.5;
+      ">
+        ${q.choices[idx] || ""}
+      </div>
 
-          <div class="answerGrid">
+      <div id="selected${idx}">
+        未選択
+      </div>
 
-      `;
+      <div class="answerGrid">
+  `;
 
       if(q.type === "binary"){
 
