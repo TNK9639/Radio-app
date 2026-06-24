@@ -438,6 +438,35 @@ function setMode(m){
   mode = m;
 
   showSettingScreen();
+function updateTopicList(){
+
+  const subject =
+    document.getElementById(
+      "subjectSelect"
+    ).value;
+
+  const topics =
+    [...new Set(
+      allData
+        .filter(
+          q => q.subject === subject
+        )
+        .map(q => q.topic)
+        .filter(Boolean)
+    )]
+    .sort();
+
+  document.getElementById(
+    "topicSelect"
+  ).innerHTML = topics
+    .map(t => `
+      <option value="${t}">
+        ${t}
+      </option>
+    `)
+    .join("");
+
+}
 
 }
 
@@ -506,7 +535,10 @@ function showSettingScreen(){
 
     html += `
 
-      <select id="subjectSelect">
+      <select
+  id="subjectSelect"
+  onchange="updateTopicList()"
+>
 
         <option value="無線工学">
           無線工学
@@ -540,13 +572,7 @@ function showSettingScreen(){
       </select>
 
       <select id="topicSelect">
-
-        ${
-          [...new Set(
-            allData
-              .map(q => q.topic)
-              .filter(Boolean)
-          )]
+</select>
           .sort()
           .map(t => `
             <option value="${t}">
@@ -576,6 +602,11 @@ function showSettingScreen(){
   `;
 
   document.getElementById("quiz").innerHTML = html;
+if(mode === "topic"){
+
+  updateTopicList();
+
+}
 
 }
 
