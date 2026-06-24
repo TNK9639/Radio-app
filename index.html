@@ -444,28 +444,27 @@ function setMode(m){
 // ===== 設定 =====
 function showSettingScreen(){
 
-let html = `
+  let html = `
 
-```
-<div class="card">
+    <div class="card">
 
-  <div class="settingHeader">
+      <div class="settingHeader">
 
-    <h3 style="margin:0;">
-      設定
-    </h3>
+        <h3 style="margin:0;">
+          設定
+        </h3>
 
-    <button
-      class="backBtn"
-      onclick="showModeMenu()"
-    >
-      メニューへ戻る
-    </button>
+        <button
+          class="backBtn"
+          onclick="showModeMenu()"
+        >
+          メニューへ戻る
+        </button>
 
-  </div>
-```
+      </div>
 
-`;
+  `;
+
 
 // 試験・練習モード
 if(mode !== "topic"){
