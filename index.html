@@ -410,9 +410,7 @@ function showModeMenu(){
       <button onclick="setMode('practice')">
         練習モード
       </button>
-<button onclick="setMode('topic')">
-  類似問題モード
-</button>
+
 
       <button onclick="loadWeakQuestions()">
         苦手克服モード
@@ -425,7 +423,9 @@ function showModeMenu(){
       <button onclick="showRecords()">
         成績表示
       </button>
-
+<button onclick="setMode('topic')">
+  類似問題モード
+</button>
     </div>
 
   `;
@@ -444,142 +444,181 @@ function setMode(m){
 // ===== 設定 =====
 function showSettingScreen(){
 
-  let html = `
+let html = `
 
-    <div class="card">
+```
+<div class="card">
 
-      <div class="settingHeader">
+  <div class="settingHeader">
 
-        <h3 style="margin:0;">
-          設定
-        </h3>
+    <h3 style="margin:0;">
+      設定
+    </h3>
 
-        <button
-          class="backBtn"
-          onclick="showModeMenu()"
-        >
-          メニューへ戻る
-        </button>
+    <button
+      class="backBtn"
+      onclick="showModeMenu()"
+    >
+      メニューへ戻る
+    </button>
 
-      </div>
+  </div>
+```
 
-      <select id="yearSelect">
+`;
 
-        ${
-          [...new Set(allData.map(q => q.year))]
-            .sort((a,b)=>b-a)
-            .map(y => `
-              <option value="${y}">
-                ${y}
-              </option>
-            `)
-            .join("")
-        }
+// 試験・練習モード
+if(mode !== "topic"){
 
-      </select>
+```
+html += `
 
-      <select id="termSelect">
+  <select id="yearSelect">
 
-        <option value="前期">
-          前期
+    ${
+      [...new Set(allData.map(q => q.year))]
+      .sort((a,b)=>b-a)
+      .map(y => `
+        <option value="${y}">
+          ${y}
         </option>
+      `)
+      .join("")
+    }
 
-        <option value="後期">
-          後期
-        </option>
+  </select>
 
-      </select>
+  <select id="termSelect">
 
-  `;
+    <option value="前期">
+      前期
+    </option>
 
-  if(mode === "practice"){
+    <option value="後期">
+      後期
+    </option>
 
-  html += `
+  </select>
 
-    <select id="subjectSelect">
-
-      <option value="無線工学">
-        無線工学
-      </option>
-
-      <option value="法規">
-        法規
-      </option>
-
-    </select>
-
-  `;
+`;
+```
 
 }
 
+// 練習モード
+if(mode === "practice"){
+
+```
+html += `
+
+  <select id="subjectSelect">
+
+    <option value="無線工学">
+      無線工学
+    </option>
+
+    <option value="法規">
+      法規
+    </option>
+
+  </select>
+
+`;
+```
+
+}
+
+// 分野別モード
 if(mode === "topic"){
 
-  html += `
+```
+html += `
 
-    <select id="topicSelect">
+  <select id="subjectSelect">
 
-      ${
-        [...new Set(
-          allData
-            .map(q => q.topic)
-            .filter(Boolean)
-        )]
-        .sort()
-        .map(t => `
-          <option value="${t}">
-            ${t}
-          </option>
-        `)
-        .join("")
-      }
+    <option value="無線工学">
+      無線工学
+    </option>
 
-    </select>
+    <option value="法規">
+      法規
+    </option>
 
-  `;
+  </select>
+
+  <select id="topicSelect">
+
+    ${
+      [...new Set(
+        allData
+        .map(q => q.topic)
+        .filter(Boolean)
+      )]
+      .sort()
+      .map(t => `
+        <option value="${t}">
+          ${t}
+        </option>
+      `)
+      .join("")
+    }
+
+  </select>
+
+`;
+```
 
 }
 
+html += `
 
-      
-  html += `
+```
+  <button
+    class="mainBtn"
+    onclick="startMode()"
+  >
+    試験開始
+  </button>
 
-      <button
-        class="mainBtn"
-        onclick="startMode()"
-      >
-        試験開始
-      </button>
+</div>
+```
 
-    </div>
+`;
 
-  `;
-
-  document.getElementById("quiz").innerHTML = html;
+document.getElementById("quiz").innerHTML = html;
 }
+
   
 // ===== 開始 =====
 
 function startMode(){
 
-  selectedYear =
-    document.getElementById("yearSelect").value;
+  if(mode !== "topic"){
 
-  selectedTerm =
-    document.getElementById("termSelect").value;
+    selectedYear =
+      document.getElementById("yearSelect").value;
 
-  if(mode === "practice"){
+    selectedTerm =
+      document.getElementById("termSelect").value;
 
-  selectedSubject =
-    document.getElementById("subjectSelect").value;
+  }
 
-}
+  if(
+    mode === "practice" ||
+    mode === "topic"
+  ){
 
-if(mode === "topic"){
+    selectedSubject =
+      document.getElementById("subjectSelect").value;
 
-  selectedTopic =
-    document.getElementById("topicSelect").value;
+  }
 
-}
+  if(mode === "topic"){
+
+    selectedTopic =
+      document.getElementById("topicSelect").value;
+
+  }
 
   filterQuestions();
 
@@ -593,35 +632,23 @@ function filterQuestions(){
 
     let ok = true;
 
-    ok =
-      ok &&
-      q.year === selectedYear;
-
-    ok =
-      ok &&
-      q.term === selectedTerm;
+    ok = ok && q.year === selectedYear;
+    ok = ok && q.term === selectedTerm;
 
     if(mode === "practice"){
 
-  ok =
-    ok &&
-    q.subject === selectedSubject;
+      ok = ok &&
+      q.subject === selectedSubject;
 
-}
-
-if(mode === "topic"){
-
-  ok =
-    ok &&
-    q.topic === selectedTopic;
-
-}
+    }
 
     return ok;
 
   });
 
   data = filtered;
+
+}
 
 data.sort(
   () => Math.random() - 0.5
