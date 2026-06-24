@@ -377,7 +377,27 @@ id:
 
       allData = [...data];
 
-      showModeMenu();
+username =
+  localStorage.getItem("username");
+
+if(!username){
+
+  username = prompt(
+    "お名前を入力してください"
+  );
+
+  if(!username){
+    username = "ゲスト";
+  }
+
+  localStorage.setItem(
+    "username",
+    username
+  );
+
+}
+
+showModeMenu();
 
     })
 
@@ -400,7 +420,13 @@ function showModeMenu(){
 
     <div class="card">
 
-      <h3>モード選択</h3>
+      <h3>
+  ${username} さん
+</h3>
+
+<h3>
+  モード選択
+</h3>
 
       <button onclick="setMode('exam')">
         試験モード
@@ -426,6 +452,9 @@ function showModeMenu(){
         成績表示
       </button>
 
+<button onclick="changeUserName()">
+  名前変更
+</button>
     </div>
 
   `;
@@ -467,6 +496,24 @@ function updateTopicList(){
         ${t}
       </option>
     `).join("");
+
+}
+function changeUserName(){
+
+  let name = prompt(
+    "新しい名前を入力"
+  );
+
+  if(!name) return;
+
+  username = name;
+
+  localStorage.setItem(
+    "username",
+    name
+  );
+
+  showModeMenu();
 
 }
 // ===== 設定 =====
@@ -1444,6 +1491,8 @@ function saveResult(){
 
   results.push({
 
+user:username,
+
     year:selectedYear,
 
     term:selectedTerm,
@@ -1513,9 +1562,13 @@ function showRecords(){
         border-radius:10px;
       ">
 
-        ${r.year}
-        ${r.term}
-        ${r.subject}
+       ${r.user}
+
+<br>
+
+${r.year}
+${r.term}
+${r.subject}
 
         <br>
 
