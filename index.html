@@ -438,6 +438,9 @@ function setMode(m){
   mode = m;
 
   showSettingScreen();
+
+}
+
 function updateTopicList(){
 
   const subject =
@@ -458,18 +461,14 @@ function updateTopicList(){
 
   document.getElementById(
     "topicSelect"
-  ).innerHTML = topics
-    .map(t => `
+  ).innerHTML =
+    topics.map(t => `
       <option value="${t}">
         ${t}
       </option>
-    `)
-    .join("");
+    `).join("");
 
 }
-
-}
-
 // ===== 設定 =====
 function showSettingScreen(){
 
@@ -535,10 +534,7 @@ function showSettingScreen(){
 
     html += `
 
-      <select
-  id="subjectSelect"
-  onchange="updateTopicList()"
->
+      <select id="subjectSelect">
 
         <option value="無線工学">
           無線工学
