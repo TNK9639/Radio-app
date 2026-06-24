@@ -400,7 +400,6 @@ function showModeMenu(){
 
     <div class="card">
 
-
       <h3>モード選択</h3>
 
       <button onclick="setMode('exam')">
@@ -411,6 +410,9 @@ function showModeMenu(){
         練習モード
       </button>
 
+      <button onclick="setMode('topic')">
+        類似問題モード
+      </button>
 
       <button onclick="loadWeakQuestions()">
         苦手克服モード
@@ -423,9 +425,7 @@ function showModeMenu(){
       <button onclick="showRecords()">
         成績表示
       </button>
-<button onclick="setMode('topic')">
-  類似問題モード
-</button>
+
     </div>
 
   `;
@@ -465,126 +465,118 @@ function showSettingScreen(){
 
   `;
 
+  // 試験・練習モード
+  if(mode !== "topic"){
 
-// 試験・練習モード
-if(mode !== "topic"){
+    html += `
 
-```
-html += `
+      <select id="yearSelect">
 
-  <select id="yearSelect">
+        ${
+          [...new Set(allData.map(q => q.year))]
+            .sort((a,b)=>b-a)
+            .map(y => `
+              <option value="${y}">
+                ${y}
+              </option>
+            `)
+            .join("")
+        }
 
-    ${
-      [...new Set(allData.map(q => q.year))]
-      .sort((a,b)=>b-a)
-      .map(y => `
-        <option value="${y}">
-          ${y}
+      </select>
+
+      <select id="termSelect">
+
+        <option value="前期">
+          前期
         </option>
-      `)
-      .join("")
-    }
 
-  </select>
-
-  <select id="termSelect">
-
-    <option value="前期">
-      前期
-    </option>
-
-    <option value="後期">
-      後期
-    </option>
-
-  </select>
-
-`;
-```
-
-}
-
-// 練習モード
-if(mode === "practice"){
-
-```
-html += `
-
-  <select id="subjectSelect">
-
-    <option value="無線工学">
-      無線工学
-    </option>
-
-    <option value="法規">
-      法規
-    </option>
-
-  </select>
-
-`;
-```
-
-}
-
-// 分野別モード
-if(mode === "topic"){
-
-```
-html += `
-
-  <select id="subjectSelect">
-
-    <option value="無線工学">
-      無線工学
-    </option>
-
-    <option value="法規">
-      法規
-    </option>
-
-  </select>
-
-  <select id="topicSelect">
-
-    ${
-      [...new Set(
-        allData
-        .map(q => q.topic)
-        .filter(Boolean)
-      )]
-      .sort()
-      .map(t => `
-        <option value="${t}">
-          ${t}
+        <option value="後期">
+          後期
         </option>
-      `)
-      .join("")
-    }
 
-  </select>
+      </select>
 
-`;
-```
+    `;
 
-}
+  }
 
-html += `
+  // 練習モード
+  if(mode === "practice"){
 
-```
-  <button
-    class="mainBtn"
-    onclick="startMode()"
-  >
-    試験開始
-  </button>
+    html += `
 
-</div>
-```
+      <select id="subjectSelect">
 
-`;
+        <option value="無線工学">
+          無線工学
+        </option>
 
-document.getElementById("quiz").innerHTML = html;
+        <option value="法規">
+          法規
+        </option>
+
+      </select>
+
+    `;
+
+  }
+
+  // 類似問題モード
+  if(mode === "topic"){
+
+    html += `
+
+      <select id="subjectSelect">
+
+        <option value="無線工学">
+          無線工学
+        </option>
+
+        <option value="法規">
+          法規
+        </option>
+
+      </select>
+
+      <select id="topicSelect">
+
+        ${
+          [...new Set(
+            allData
+              .map(q => q.topic)
+              .filter(Boolean)
+          )]
+          .sort()
+          .map(t => `
+            <option value="${t}">
+              ${t}
+            </option>
+          `)
+          .join("")
+        }
+
+      </select>
+
+    `;
+
+  }
+
+  html += `
+
+      <button
+        class="mainBtn"
+        onclick="startMode()"
+      >
+        試験開始
+      </button>
+
+    </div>
+
+  `;
+
+  document.getElementById("quiz").innerHTML = html;
+
 }
 
   
@@ -629,15 +621,31 @@ function filterQuestions(){
 
   let filtered = allData.filter(q=>{
 
+    // 類似問題モード
+    if(mode === "topic"){
+
+      return (
+        q.subject === selectedSubject &&
+        q.topic === selectedTopic
+      );
+
+    }
+
     let ok = true;
 
-    ok = ok && q.year === selectedYear;
-    ok = ok && q.term === selectedTerm;
+    ok =
+      ok &&
+      q.year === selectedYear;
+
+    ok =
+      ok &&
+      q.term === selectedTerm;
 
     if(mode === "practice"){
 
-      ok = ok &&
-      q.subject === selectedSubject;
+      ok =
+        ok &&
+        q.subject === selectedSubject;
 
     }
 
@@ -647,11 +655,14 @@ function filterQuestions(){
 
   data = filtered;
 
-}
+  // ランダム出題
+  if(mode === "topic"){
 
-data.sort(
-  () => Math.random() - 0.5
-);
+    data.sort(
+      () => Math.random() - 0.5
+    );
+
+  }
 
 }
 
