@@ -217,7 +217,7 @@ select{
   }
 
   .questionText{
-    font-size:13px;
+    font-size:15px;
     line-height:1.6;
     margin-bottom:2px;
   }
@@ -260,6 +260,7 @@ let mode = "";
 let selectedYear = "";
 let selectedTerm = "";
 let selectedSubject = "";
+let selectedTopic = "";
 
 // ===== CSV =====
 
@@ -357,6 +358,7 @@ choices:r[6]
 
 correct:r[7].trim(),
 explain:r[8] || "",
+topic:r[9] || "",
 
 questionNo:
   data.filter(q =>
@@ -408,6 +410,9 @@ function showModeMenu(){
       <button onclick="setMode('practice')">
         練習モード
       </button>
+<button onclick="setMode('topic')">
+  類似問題モード
+</button>
 
       <button onclick="loadWeakQuestions()">
         苦手克服モード
@@ -489,7 +494,56 @@ function showSettingScreen(){
 
   if(mode === "practice"){
 
-    html += `
+  html += `
+
+    <select id="subjectSelect">
+
+      <option value="無線工学">
+        無線工学
+      </option>
+
+      <option value="法規">
+        法規
+      </option>
+
+    </select>
+
+  `;
+
+}
+
+if(mode === "topic"){
+
+  html += `
+
+    <select id="topicSelect">
+
+      ${
+        [...new Set(
+          allData
+            .map(q => q.topic)
+            .filter(Boolean)
+        )]
+        .sort()
+        .map(t => `
+          <option value="${t}">
+            ${t}
+          </option>
+        `)
+        .join("")
+      }
+
+    </select>
+
+  `;
+
+}
+
+    </select>
+
+  `;
+
+}`
 
       <select id="subjectSelect">
 
@@ -535,10 +589,17 @@ function startMode(){
 
   if(mode === "practice"){
 
-    selectedSubject =
-      document.getElementById("subjectSelect").value;
+  selectedSubject =
+    document.getElementById("subjectSelect").value;
 
-  }
+}
+
+if(mode === "topic"){
+
+  selectedTopic =
+    document.getElementById("topicSelect").value;
+
+}
 
   filterQuestions();
 
@@ -562,17 +623,29 @@ function filterQuestions(){
 
     if(mode === "practice"){
 
-      ok =
-        ok &&
-        q.subject === selectedSubject;
+  ok =
+    ok &&
+    q.subject === selectedSubject;
 
-    }
+}
+
+if(mode === "topic"){
+
+  ok =
+    ok &&
+    q.topic === selectedTopic;
+
+}
 
     return ok;
 
   });
 
   data = filtered;
+
+data.sort(
+  () => Math.random() - 0.5
+);
 
 }
 
