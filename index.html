@@ -557,37 +557,59 @@ function showSettingScreen(){
   // 類似問題モード
   if(mode === "topic"){
 
-    html += `
+  html += `
 
-      <select id="subjectSelect">
+    <select
+      id="subjectSelect"
+      onchange="updateTopicList()"
+    >
 
-        <option value="無線工学">
-          無線工学
-        </option>
+      <option value="無線工学">
+        無線工学
+      </option>
 
-        <option value="法規">
-          法規
-        </option>
+      <option value="法規">
+        法規
+      </option>
 
-      </select>
+    </select>
 
-      <select id="topicSelect">
-</select>
-          .sort()
-          .map(t => `
-            <option value="${t}">
-              ${t}
-            </option>
-          `)
-          .join("")
-        }
+    <select id="topicSelect">
+    </select>
 
-      </select>
+  `;
 
-    `;
+}
 
-  }
+function updateTopicList(){
 
+  const subject =
+    document.getElementById(
+      "subjectSelect"
+    ).value;
+
+  const topics =
+    [...new Set(
+      allData
+        .filter(
+          q => q.subject === subject
+        )
+        .map(q => q.topic)
+        .filter(Boolean)
+    )]
+    .sort();
+
+  document.getElementById(
+    "topicSelect"
+  ).innerHTML = topics
+    .map(t => `
+      <option value="${t}">
+        ${t}
+      </option>
+    `)
+    .join("");
+
+}
   html += `
 
       <button
