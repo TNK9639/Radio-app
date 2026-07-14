@@ -834,11 +834,19 @@ function formatExplain(text){
 }
 
 function toggleAccordion(id){
-  document.querySelectorAll('.accordionContent').forEach(el=>{
-    if(el.id!==id){el.style.display='none';}
-  });
+
   const area=document.getElementById(id);
-  area.style.display = area.style.display==='block' ? 'none' : 'block';
+
+  if(area.style.display==="block"){
+
+    area.style.display="none";
+
+  }else{
+
+    area.style.display="block";
+
+  }
+
 }
 
 function show(){
