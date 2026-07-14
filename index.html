@@ -133,8 +133,6 @@ button:hover{
   border-radius:10px;
   margin-top:10px;
   color:#111;
-
-  white-space:pre-line;
 }
 
 .imgBox{
@@ -360,9 +358,7 @@ choices:r[6]
 
 correct:r[7].trim(),
 explain:r[8] || "",
-explainImg:r[9] || "",
-topic:r[10] || "",
-
+topic:r[9] || "",
 
 questionNo:
   data.filter(q =>
@@ -1230,101 +1226,22 @@ else{
 }
 
     document.getElementById("result").innerHTML =
-  ok
-  ? `<div class="result ok">
-      ⭕ ${point}/${full}点
-    </div>`
-  : `<div class="result ng">
-      ❌ ${point}/${full}点
-    </div>`;
+      ok
+      ? `<div class="result ok">
+          ⭕ ${point}/${full}点
+        </div>`
+      : `<div class="result ng">
+          ❌ ${point}/${full}点
+        </div>`;
 
-let explainHtml = "";
-
-// 練習モードだけ自動表示
-if(mode === "practice"){
-
-  if(q.explain){
-
-    explainHtml += `
-      <div class="explain">
-        <h3>解説</h3>
+    document.getElementById("explain").innerHTML =
+      `<div class="explain">
         ${q.explain}
-      </div>
-    `;
+      </div>`;
 
+    answered = true;
+    return;
   }
-
-  if(q.explainImg){
-
-    explainHtml += `
-      <div class="imgBox">
-        <img src="${q.explainImg}">
-      </div>
-    `;
-
-  }
-
-}
-
-// それ以外はボタンを押したら表示
-else{
-
-  explainHtml = `
-    <button onclick="toggleExplain()">
-      解説を見る
-    </button>
-
-    <div id="explainArea" style="display:none;">
-  `;
-
-  if(q.explain){
-
-    explainHtml += `
-      <div class="explain">
-        <h3>解説</h3>
-        ${q.explain}
-      </div>
-    `;
-
-  }
-
-  if(q.explainImg){
-
-    explainHtml += `
-      <div class="imgBox">
-        <img src="${q.explainImg}">
-      </div>
-    `;
-
-  }
-
-  explainHtml += `</div>`;
-
-}
-
-document.getElementById("explain").innerHTML = explainHtml;
-
-answered = true;
-return;
-
-function toggleExplain(){
-
-  const area =
-    document.getElementById("explainArea");
-
-  if(area.style.display === "none"){
-
-    area.style.display = "block";
-
-  }else{
-
-    area.style.display = "none";
-
-  }
-
-}
-
-console.log("JS読み込み成功");
 
   // ===== 次の問題 =====
   current++;
