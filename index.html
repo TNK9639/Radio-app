@@ -136,35 +136,6 @@ button:hover{
 
   white-space:pre-line;
 }
-.red{
-  color:#d50000;
-  font-weight:bold;
-}
-
-.blue{
-  color:#1565c0;
-  font-weight:bold;
-}
-
-.green{
-  color:#2e7d32;
-  font-weight:bold;
-}
-
-.accordion{
-  margin-top:10px;
-}
-
-.accordion button{
-  text-align:left;
-  background:#1976d2;
-  font-weight:bold;
-}
-
-.accordionContent{
-  display:none;
-  margin-top:5px;
-}
 
 .imgBox{
   display:flex;
@@ -391,8 +362,6 @@ correct:r[7].trim(),
 explain:r[8] || "",
 explainImg:r[9] || "",
 topic:r[10] || "",
-memo:r[11] || "",
-keyword:r[12] || "",
 
 
 questionNo:
@@ -816,38 +785,6 @@ function start(){
 }
 
 // ===== 表示 =====
-
-function formatExplain(text){
-
-  if(!text) return "";
-
-  return text
-
-  .replace(/【(.*?)】/g,
-    '<span class="red">$1</span>')
-
-  .replace(/《(.*?)》/g,
-    '<span class="blue">$1</span>')
-
-  .replace(/〔(.*?)〕/g,
-    '<span class="green">$1</span>');
-}
-
-function toggleAccordion(id){
-
-  const area=document.getElementById(id);
-
-  if(area.style.display==="block"){
-
-    area.style.display="none";
-
-  }else{
-
-    area.style.display="block";
-
-  }
-
-}
 
 function show(){
 
@@ -1308,67 +1245,48 @@ if(mode === "practice"){
 
   if(q.explain){
 
-   explainHtml += `
+    explainHtml += `
+      <div class="explain">
+        <h3>解説</h3>
+        ${q.explain}
+      </div>
+    `;
 
-<div class="accordion">
+  }
 
-<button onclick="toggleAccordion('exp')">
+  if(q.explainImg){
 
-📝 解説
+    explainHtml += `
+      <div class="imgBox">
+        <img src="${q.explainImg}">
+      </div>
+    `;
 
-</button>
+  }
 
-<div
-id="exp"
-class="accordionContent">
+}
 
-<div class="explain">
+// それ以外はボタンを押したら表示
+else{
 
-${formatExplain(q.explain)}
+  explainHtml = `
+    <button onclick="toggleExplain()">
+      解説を見る
+    </button>
 
-</div>
+    <div id="explainArea" style="display:none;">
+  `;
 
-</div>
+  if(q.explain){
 
-<button onclick="toggleAccordion('memo')">
+    explainHtml += `
+      <div class="explain">
+        <h3>解説</h3>
+        ${q.explain}
+      </div>
+    `;
 
-⚠ ひっかけポイント
-
-</button>
-
-<div
-id="memo"
-class="accordionContent">
-
-<div class="explain">
-
-${formatExplain(q.memo)}
-
-</div>
-
-</div>
-
-<button onclick="toggleAccordion('key')">
-
-🔑 試験ではここを覚える
-
-</button>
-
-<div
-id="key"
-class="accordionContent">
-
-<div class="explain">
-
-${formatExplain(q.keyword)}
-
-</div>
-
-</div>
-
-</div>
-
-`;
+  }
 
   if(q.explainImg){
 
