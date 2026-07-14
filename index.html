@@ -133,6 +133,37 @@ button:hover{
   border-radius:10px;
   margin-top:10px;
   color:#111;
+
+  white-space:pre-line;
+}
+.red{
+  color:#d50000;
+  font-weight:bold;
+}
+
+.blue{
+  color:#1565c0;
+  font-weight:bold;
+}
+
+.green{
+  color:#2e7d32;
+  font-weight:bold;
+}
+
+.accordion{
+  margin-top:10px;
+}
+
+.accordion button{
+  text-align:left;
+  background:#1976d2;
+  font-weight:bold;
+}
+
+.accordionContent{
+  display:none;
+  margin-top:5px;
 }
 
 .imgBox{
@@ -358,7 +389,11 @@ choices:r[6]
 
 correct:r[7].trim(),
 explain:r[8] || "",
-topic:r[9] || "",
+explainImg:r[9] || "",
+topic:r[10] || "",
+memo:r[11] || "",
+keyword:r[12] || "",
+
 
 questionNo:
   data.filter(q =>
@@ -781,6 +816,30 @@ function start(){
 }
 
 // ===== 表示 =====
+
+function formatExplain(text){
+
+  if(!text) return "";
+
+  return text
+
+  .replace(/【(.*?)】/g,
+    '<span class="red">$1</span>')
+
+  .replace(/《(.*?)》/g,
+    '<span class="blue">$1</span>')
+
+  .replace(/〔(.*?)〕/g,
+    '<span class="green">$1</span>');
+}
+
+function toggleAccordion(id){
+  document.querySelectorAll('.accordionContent').forEach(el=>{
+    if(el.id!==id){el.style.display='none';}
+  });
+  const area=document.getElementById(id);
+  area.style.display = area.style.display==='block' ? 'none' : 'block';
+}
 
 function show(){
 
@@ -1226,22 +1285,120 @@ else{
 }
 
     document.getElementById("result").innerHTML =
-      ok
-      ? `<div class="result ok">
-          ⭕ ${point}/${full}点
-        </div>`
-      : `<div class="result ng">
-          ❌ ${point}/${full}点
-        </div>`;
+  ok
+  ? `<div class="result ok">
+      ⭕ ${point}/${full}点
+    </div>`
+  : `<div class="result ng">
+      ❌ ${point}/${full}点
+    </div>`;
 
-    document.getElementById("explain").innerHTML =
-      `<div class="explain">
-        ${q.explain}
-      </div>`;
+let explainHtml = "";
 
-    answered = true;
-    return;
+// 練習モードだけ自動表示
+if(mode === "practice"){
+
+  if(q.explain){
+
+   explainHtml += `
+
+<div class="accordion">
+
+<button onclick="toggleAccordion('exp')">
+
+📝 解説
+
+</button>
+
+<div
+id="exp"
+class="accordionContent">
+
+<div class="explain">
+
+${formatExplain(q.explain)}
+
+</div>
+
+</div>
+
+<button onclick="toggleAccordion('memo')">
+
+⚠ ひっかけポイント
+
+</button>
+
+<div
+id="memo"
+class="accordionContent">
+
+<div class="explain">
+
+${formatExplain(q.memo)}
+
+</div>
+
+</div>
+
+<button onclick="toggleAccordion('key')">
+
+🔑 試験ではここを覚える
+
+</button>
+
+<div
+id="key"
+class="accordionContent">
+
+<div class="explain">
+
+${formatExplain(q.keyword)}
+
+</div>
+
+</div>
+
+</div>
+
+`;
+
+  if(q.explainImg){
+
+    explainHtml += `
+      <div class="imgBox">
+        <img src="${q.explainImg}">
+      </div>
+    `;
+
   }
+
+  explainHtml += `</div>`;
+
+}
+
+document.getElementById("explain").innerHTML = explainHtml;
+
+answered = true;
+return;
+
+function toggleExplain(){
+
+  const area =
+    document.getElementById("explainArea");
+
+  if(area.style.display === "none"){
+
+    area.style.display = "block";
+
+  }else{
+
+    area.style.display = "none";
+
+  }
+
+}
+
+console.log("JS読み込み成功");
 
   // ===== 次の問題 =====
   current++;
